@@ -6,18 +6,18 @@
 {%- assign aux_score_seo = subscriber.pitch_score_seo -%} 
 {%- assign aux_score_social = subscriber.pitch_score_social -%}
 {%- assign aux_score_bundle = subscriber.pitch_score_bundle -%}
-{%- assign aux_score_cross_sell = subscriber.pitch_score_cross_sell -%} 
+{%- assign aux_score_sop = subscriber.pitch_score_sop -%} 
 
 {%- if aux_score_bundle != "0" -%} 
 Bundle
 {%- else -%}
 
-	{%- if aux_score_analytics == "0" and aux_score_content == "0" and aux_score_email == "0" and aux_score_funnels == "0" and aux_score_paid == "0" and aux_score_seo == "0" and aux_score_social == "0" and aux_score_cross_sell == "0" -%} 
+	{%- if aux_score_analytics == "0" and aux_score_content == "0" and aux_score_email == "0" and aux_score_funnels == "0" and aux_score_paid == "0" and aux_score_seo == "0" and aux_score_social == "0" and aux_score_sop == "0" -%} 
 	None
 	{%- else -%}
 
-		{%- if aux_score_cross_sell != "0" -%} 
-		CrossSell
+		{%- if aux_score_sop != "0" -%} 
+		SOP
 		{%- else -%}
 
 			{%- assign aux_score_analytics_size = aux_score_analytics.size | plus:0 -%} 
