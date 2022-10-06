@@ -1,182 +1,81 @@
-{%- assign aux_score_analytics = subscriber.pitch_score_analytics -%} 
-{%- assign aux_score_content = subscriber.pitch_score_content -%} 
-{%- assign aux_score_email = subscriber.pitch_score_email -%} 
-{%- assign aux_score_funnels = subscriber.pitch_score_funnels -%} 
-{%- assign aux_score_paid = subscriber.pitch_score_paid -%} 
-{%- assign aux_score_seo = subscriber.pitch_score_seo -%} 
-{%- assign aux_score_social = subscriber.pitch_score_social -%}
-{%- assign aux_score_bundle = subscriber.pitch_score_bundle -%}
-{%- assign aux_score_sop = subscriber.pitch_score_sop -%} 
+{% liquid
+comment
+> Assign pull scores from subscriber records
+endcomment
+assign aux_score_analytics = subscriber.pitch_score_analytics  
+assign aux_score_content = subscriber.pitch_score_content  
+assign aux_score_email = subscriber.pitch_score_email  
+assign aux_score_funnels = subscriber.pitch_score_funnels  
+assign aux_score_paid = subscriber.pitch_score_paid  
+assign aux_score_seo = subscriber.pitch_score_seo  
+assign aux_score_social = subscriber.pitch_score_social   
 
-{%- if aux_score_bundle != "0" -%} 
-Bundle
-{%- else -%}
+comment
+> Build array of scores
+endcomment
+assign arrayToSort = aux_score_analytics | append:"," | append:aux_score_content | append:"," | append:aux_score_email | append:"," | append:aux_score_funnels | append:"," | append:aux_score_paid | append:"," | append:aux_score_seo | append:"," | append:aux_score_social | split:","   
 
-	{%- if aux_score_analytics == "0" and aux_score_content == "0" and aux_score_email == "0" and aux_score_funnels == "0" and aux_score_paid == "0" and aux_score_seo == "0" and aux_score_social == "0" and aux_score_sop == "0" -%} 
-	None
-	{%- else -%}
+comment
+> Define value to compare against from the first value in the array
+endcomment
+assign highest_score = arrayToSort.first | plus:0 
+assign highest_index = 0 
+assign highest_category = "Analytics" 
 
-		{%- if aux_score_sop != "0" -%} 
-		SOP
-		{%- else -%}
+comment
+> Loop through values in the array
+endcomment
+for score in arrayToSort 
+    comment
+    > Define current values to compare
+    endcomment
+    assign curr_num = score | plus:0 
+    assign curr_index = curr_index | default:0 | plus:0 
+    case curr_index 
+      when 0 
+         assign curr_category = "Analytics" 
+      when 1 
+         assign curr_category = "Content" 
+      when 2 
+         assign curr_category = "Email" 
+      when 3 
+         assign curr_category = "Funnels" 
+      when 4 
+         assign curr_category = "Paid" 
+      when 5 
+         assign curr_category = "SEO" 
+      when 6 
+         assign curr_category = "Social" 
+    endcase 
+    assign curr_highest_score = highest_score | split:"," | first | plus: 0 
 
-			{%- assign aux_score_analytics_size = aux_score_analytics.size | plus:0 -%} 
-			{%- assign aux_score_content_size = aux_score_content.size | plus:0 -%} 
-			{%- assign aux_score_email_size = aux_score_email.size | plus:0 -%} 
-			{%- assign aux_score_funnels_size = aux_score_funnels.size | plus:0 -%} 
-			{%- assign aux_score_paid_size = aux_score_paid.size | plus:0 -%} 
-			{%- assign aux_score_seo_size = aux_score_seo.size | plus:0 -%} 
-			{%- assign aux_score_social_size = aux_score_social.size | plus:0 -%}  
+    comment
+    > assign replace highest value if current value is higher
+    endcomment   
+    if curr_num > curr_highest_score 
+       assign highest_score = curr_num 
+       assign highest_index = curr_index 
+       assign highest_category = curr_category 
+    comment
+    > append current value if it's equal to the highest value
+    endcomment   
+    elsif curr_num == curr_highest_score and curr_index != 0 
+       assign highest_score = highest_score | append:"," | append: curr_num 
+       assign highest_index = highest_index | append:"," | append: curr_index 
+       assign highest_category = highest_category | append:"," | append: curr_category 
+    endif 
 
-			{%- assign arrayToSortSize = aux_score_analytics_size | append:"," | append:aux_score_content_size | append:"," | append:aux_score_email_size | append:"," | append:aux_score_funnels_size | append:"," | append:aux_score_paid_size | append:"," | append:aux_score_seo_size | append:"," | append:aux_score_social_size | split:"," | sort -%}  
+    assign curr_index = curr_index | plus: 1 
+ endfor 
 
-			{%- assign digitsCount = arrayToSortSize.last | plus:0 -%}  
-
-			{%- if  aux_score_analytics_size < digitsCount -%}
-				{%- assign aux_score_analytics = "0" -%}
-			{%- endif -%}
-			{%- if  aux_score_content_size < digitsCount -%}
-				{%- assign aux_score_content = "0" -%}
-			{%- endif -%}
-			{%- if  aux_score_email_size < digitsCount -%}
-				{%- assign aux_score_email = "0" -%}
-			{%- endif -%} 
-			{%- if  aux_score_funnels_size < digitsCount -%}
-				{%- assign aux_score_funnels = "0" -%}
-			{%- endif -%}
-			{%- if  aux_score_paid_size < digitsCount -%}
-				{%- assign aux_score_paid = "0" -%}
-			{%- endif -%}
-			{%- if  aux_score_seo_size < digitsCount -%}
-				{%- assign aux_score_seo = "0" -%}
-			{%- endif -%}
-			{%- if  aux_score_social_size < digitsCount -%}
-				{%- assign aux_score_social = "0" -%}
-			{%- endif -%}
-
-			{%- assign arrayToSort = aux_score_analytics | append:"," | append:aux_score_content | append:"," | append:aux_score_email | append:"," | append:aux_score_funnels | append:"," | append:aux_score_paid | append:"," | append:aux_score_seo | append:"," | append:aux_score_social | split:"," | sort -%}  
-
-			{%- assign highest = arrayToSort.last -%}
-
-			{%- if arrayNoDuplicates.size == arrayToSort.size or arrayToSort[6] != arrayToSort[5] -%}
-			 	{%- if aux_score_analytics == highest -%}
-			 	 	Analytics 	
-			 	{%- else -%}
-			 		{%- if aux_score_content == highest -%}
-			 			Content
-					{%- else -%}
-						{%- if aux_score_email == highest -%}
-							Email
-						{%- else -%}
-							{%- if aux_score_funnels == highest -%}
-								Funnels
-							{%- else -%}
-								{%- if aux_score_paid == highest -%}
-									Paid
-								{%- else -%}
-									{%- if aux_score_seo == highest -%}
-										SEO
-									{%- else -%}
-										Social
-									{%- endif -%}
-								{%- endif -%}
-							{%- endif -%}
-						{%- endif -%}
-					{%- endif -%}
-				{%- endif -%}
-			{%- else -%}
-				{%- if aux_score_analytics == highest -%}
-					{%- assign highestArray = "Analytics" -%}
-					{%- if aux_score_content == highest -%}
-						{%- assign highestArray = highestArray | append:",Content" -%}
-					{%- endif -%}
-					{%- if aux_score_email == highest -%}
-						{%- assign highestArray = highestArray | append:",Email" -%}
-					{%- endif -%}
-					{%- if aux_score_funnels == highest -%}
-						{%- assign highestArray = highestArray | append:",Funnels" -%}
-					{%- endif -%}
-					{%- if aux_score_paid == highest -%}
-						{%- assign highestArray = highestArray | append:",Paid" -%}
-					{%- endif -%}
-					{%- if aux_score_seo == highest -%}
-						{%- assign highestArray = highestArray | append:",SEO" -%}
-					{%- endif -%}
-					{%- if aux_score_social == highest -%}
-						{%- assign highestArray = highestArray | append:",Social" -%}
-					{%- endif -%}
-				{%- else -%}
-					{%- if aux_score_content == highest -%}
-						{%- assign highestArray = "Content" -%}
-						{%- if aux_score_email == highest -%}
-							{%- assign highestArray = highestArray | append:",Email" -%}
-						{%- endif -%}
-						{%- if aux_score_funnels == highest -%}
-							{%- assign highestArray = highestArray | append:",Funnels" -%}
-						{%- endif -%}
-						{%- if aux_score_paid == highest -%}
-							{%- assign highestArray = highestArray | append:",Paid" -%}
-						{%- endif -%}
-						{%- if aux_score_seo == highest -%}
-							{%- assign highestArray = highestArray | append:",SEO" -%}
-						{%- endif -%}
-						{%- if aux_score_social == highest -%}
-							{%- assign highestArray = highestArray | append:",Social" -%}
-						{%- endif -%}
-					{%- else -%}
-						{%- if aux_score_email == highest -%}
-							{%- assign highestArray = "Email" -%}
-							{%- if aux_score_funnels == highest -%}
-								{%- assign highestArray = highestArray | append:",Funnels" -%}
-							{%- endif -%}
-							{%- if aux_score_paid == highest -%}
-								{%- assign highestArray = highestArray | append:",Paid" -%}
-							{%- endif -%}
-							{%- if aux_score_seo == highest -%}
-								{%- assign highestArray = highestArray | append:",SEO" -%}
-							{%- endif -%}
-							{%- if aux_score_social == highest -%}
-								{%- assign highestArray = highestArray | append:",Social" -%}
-							{%- endif -%}
-						{%- else -%}
-							{%- if aux_score_funnels == highest -%}
-								{%- assign highestArray = "Funnels" -%}
-								{%- if aux_score_paid == highest -%}
-									{%- assign highestArray = highestArray | append:",Paid" -%}
-								{%- endif -%}
-								{%- if aux_score_seo == highest -%}
-									{%- assign highestArray = highestArray | append:",SEO" -%}
-								{%- endif -%}
-								{%- if aux_score_social == highest -%}
-									{%- assign highestArray = highestArray | append:",Social" -%}
-								{%- endif -%}
-							{%- else -%}
-								{%- if aux_score_paid == highest -%}
-									{%- assign highestArray = "Paid" -%}
-									{%- if aux_score_seo == highest -%}
-										{%- assign highestArray = highestArray | append:",SEO" -%}
-									{%- endif -%}
-									{%- if aux_score_social == highest -%}
-										{%- assign highestArray = highestArray | append:",Social" -%}
-									{%- endif -%}
-								{%- else -%}
-									{%- assign highestArray = "SEO,Social" -%}
-								{%- endif -%}
-							{%- endif -%}
-						{%- endif -%}
-					{%- endif -%}
-				{%- endif -%}
-				{%- assign highestArrayLength = highestArray | split:"," | size -%}
-				{%- assign min = 0 -%}
-				{%- assign max = highestArrayLength -%}
-				{%- assign diff = max | minus: min -%}
-				{%- assign randomNumber = 'now' | date: "%9N" | plus:0 | modulo: diff | plus: min -%}
-				{%- assign highestArray = highestArray | split:"," -%}
-				{{ highestArray[randomNumber] }}
-			{%- endif -%}
-
-		{%- endif -%}
-
-	{%- endif -%}
-
-{%- endif -%}
+comment
+> If there is more than one category tied for highest score, output a random one between them
+endcomment
+ assign highest_category_size = highest_category | split:"," | size 
+ assign min = 0 
+ assign max = highest_category_size 
+ assign diff = max | minus: min 
+ assign randomNumber = 'now' | date: "%9N" | plus:0 | modulo: diff | plus: min 
+ assign highest_category = highest_category | split:"," 
+echo highest_category[randomNumber] 
+%}
