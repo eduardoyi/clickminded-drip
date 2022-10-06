@@ -1,81 +1,81 @@
-{% liquid
-comment
+{%- comment -%}
 > Assign pull scores from subscriber records
-endcomment
-assign aux_score_analytics = subscriber.pitch_score_analytics  
-assign aux_score_content = subscriber.pitch_score_content  
-assign aux_score_email = subscriber.pitch_score_email  
-assign aux_score_funnels = subscriber.pitch_score_funnels  
-assign aux_score_paid = subscriber.pitch_score_paid  
-assign aux_score_seo = subscriber.pitch_score_seo  
-assign aux_score_social = subscriber.pitch_score_social   
+{%- endcomment -%}
+{%- assign aux_score_analytics = subscriber.pitch_score_analytics -%}
+{%- assign aux_score_content = subscriber.pitch_score_content -%}
+{%- assign aux_score_email = subscriber.pitch_score_email -%}
+{%- assign aux_score_funnels = subscriber.pitch_score_funnels -%}
+{%- assign aux_score_paid = subscriber.pitch_score_paid -%}
+{%- assign aux_score_seo = subscriber.pitch_score_seo -%}
+{%- assign aux_score_social = subscriber.pitch_score_social -%}
 
-comment
+{%- comment -%}
 > Build array of scores
-endcomment
-assign arrayToSort = aux_score_analytics | append:"," | append:aux_score_content | append:"," | append:aux_score_email | append:"," | append:aux_score_funnels | append:"," | append:aux_score_paid | append:"," | append:aux_score_seo | append:"," | append:aux_score_social | split:","   
+{%- endcomment -%}
+{%- assign arrayToSort = aux_score_analytics | append:"," | append:aux_score_content | append:"," | append:aux_score_email | append:"," | append:aux_score_funnels | append:"," | append:aux_score_paid | append:"," | append:aux_score_seo | append:"," | append:aux_score_social | split:"," -%}
 
-comment
+{%- comment -%}
 > Define value to compare against from the first value in the array
-endcomment
-assign highest_score = arrayToSort.first | plus:0 
-assign highest_index = 0 
-assign highest_category = "Analytics" 
+{%- endcomment -%}
+{%- assign highest_score = arrayToSort.first | plus:0 -%}
+{%- assign highest_index = 0 -%}
+{%- assign highest_product = "Analytics" -%}
 
-comment
+{%- comment -%}
 > Loop through values in the array
-endcomment
-for score in arrayToSort 
-    comment
-    > Define current values to compare
-    endcomment
-    assign curr_num = score | plus:0 
-    assign curr_index = curr_index | default:0 | plus:0 
-    case curr_index 
-      when 0 
-         assign curr_category = "Analytics" 
-      when 1 
-         assign curr_category = "Content" 
-      when 2 
-         assign curr_category = "Email" 
-      when 3 
-         assign curr_category = "Funnels" 
-      when 4 
-         assign curr_category = "Paid" 
-      when 5 
-         assign curr_category = "SEO" 
-      when 6 
-         assign curr_category = "Social" 
-    endcase 
-    assign curr_highest_score = highest_score | split:"," | first | plus: 0 
+{%- endcomment -%}
+{%- for score in arrayToSort -%}
+	
+	{%- comment -%}
+	> Define current values to compare
+	{%- endcomment -%}
+	{%- assign curr_num = score | plus:0 -%}
+	{%- assign curr_index = curr_index | default:0 | plus:0 -%}
+	{%- case curr_index -%}
+		{%- when 0 -%}
+			{%- assign curr_product = "Analytics" -%}
+		{%- when 1 -%}
+			{%- assign curr_product = "Content" -%}
+		{%- when 2 -%}
+			{%- assign curr_product = "Email" -%}
+		{%- when 3 -%}
+			{%- assign curr_product = "Funnels" -%}
+		{%- when 4 -%}
+			{%- assign curr_product = "Paid" -%}
+		{%- when 5 -%}
+			{%- assign curr_product = "SEO" -%}
+		{%- when 6 -%}
+			{%- assign curr_product = "Social" -%}
+	{%- endcase -%}
+	{%- assign curr_highest_score = highest_score | split:"," | first | plus: 0 -%}
 
-    comment
-    > assign replace highest value if current value is higher
-    endcomment   
-    if curr_num > curr_highest_score 
-       assign highest_score = curr_num 
-       assign highest_index = curr_index 
-       assign highest_category = curr_category 
-    comment
-    > append current value if it's equal to the highest value
-    endcomment   
-    elsif curr_num == curr_highest_score and curr_index != 0 
-       assign highest_score = highest_score | append:"," | append: curr_num 
-       assign highest_index = highest_index | append:"," | append: curr_index 
-       assign highest_category = highest_category | append:"," | append: curr_category 
-    endif 
+	{%- comment -%}
+	> Replace highest value if current value is higher
+	{%- endcomment -%}
+	{%- if curr_num > curr_highest_score -%}
+		{%- assign highest_score = curr_num -%}
+		{%- assign highest_index = curr_index -%}
+		{%- assign highest_product = curr_product -%}
 
-    assign curr_index = curr_index | plus: 1 
- endfor 
+	{%- comment -%}
+	> Append current value if it's equal to the highest value
+	{%- endcomment -%}
+	{%- elsif curr_num == curr_highest_score and curr_index != 0 -%}
+		{%- assign highest_score = highest_score | append:"," | append: curr_num -%}
+		{%- assign highest_index = highest_index | append:"," | append: curr_index -%}
+		{%- assign highest_product = highest_product | append:"," | append: curr_product -%}
+	{%- endif -%}
 
-comment
-> If there is more than one category tied for highest score, output a random one between them
-endcomment
- assign highest_category_size = highest_category | split:"," | size 
- assign min = 0 
- assign max = highest_category_size 
- assign diff = max | minus: min 
- assign randomNumber = 'now' | date: "%9N" | plus:0 | modulo: diff | plus: min 
- assign highest_category = highest_category | split:"," 
-echo highest_category[randomNumber] 
-%}
+	{%- assign curr_index = curr_index | plus: 1 -%}
+{%- endfor -%}
+
+{%- comment -%}
+> If there is more than one category tied for highest score, output a random one between them. Otherwise, output the category
+{%- endcomment -%}
+{%- assign highest_product_size = highest_product | split:"," | size -%}
+{%- assign min = 0 -%}
+{%- assign max = highest_product_size -%}
+{%- assign diff = max | minus: min -%}
+{%- assign randomNumber = 'now' | date: "%9N" | plus:0 | modulo: diff | plus: min -%}
+{%- assign highest_product = highest_product | split:"," -%}
+{{ highest_product[randomNumber] }}
